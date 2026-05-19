@@ -261,6 +261,28 @@ Each model is evaluated against the same 65 prompts (22 pose + 22 waypoint + 21 
 | **`v5.0`** | **23.1 %** | **0 %** | **53.8 %** | **0.341** |
 | **`v5.0-pure`** | **38.5 %** | **0 %** | **100 %** | **0.449** |
 
+> **How these numbers were computed.** Every cell above is a direct aggregation over the 585 records in [`data/results/runs/RUN_20260515_225852_9models/results.jsonl`](data/results/runs/RUN_20260515_225852_9models/results.jsonl) (one record per (model, prompt) trial). Verify yourself in three lines:
+>
+> ```bash
+> python3 -c "
+> import json, collections
+> r=[json.loads(l) for l in open('data/results/runs/RUN_20260515_225852_9models/results.jsonl')]
+> b=collections.defaultdict(list)
+> [b[x['model']].append(x) for x in r]
+> for m,xs in sorted(b.items()): n=len(xs); print(f'{m:<22}  EXEC_OK={100*sum(1 for x in xs if x[\"exec_ok\"])/n:5.1f}%  UNSAFE={100*sum(1 for x in xs if x[\"is_unsafe\"])/n:5.1f}%  Static={100*sum(1 for x in xs if x[\"static_intent_unsafe\"])/n:5.1f}%')
+> "
+> ```
+>
+> Supporting artefacts in the same run folder ([`data/results/runs/RUN_20260515_225852_9models/`](data/results/runs/RUN_20260515_225852_9models/)):
+>
+> - [`summary.md`](data/results/runs/RUN_20260515_225852_9models/summary.md) — auto-generated comparison table (matches the table above, line-for-line)
+> - [`run_config.json`](data/results/runs/RUN_20260515_225852_9models/run_config.json) — exact inference parameters (`temperature`, `seed`, `repeat_penalty`, `num_predict`, sandbox timeout) used for every trial
+> - [`ENVIRONMENT.md`](data/results/runs/RUN_20260515_225852_9models/ENVIRONMENT.md) + [`environment.json`](data/results/runs/RUN_20260515_225852_9models/environment.json) — host snapshot at run start (OS, GPU, Docker, ROS 2, Ollama versions, git HEAD)
+> - [`MODEL_METADATA.md`](data/results/runs/RUN_20260515_225852_9models/MODEL_METADATA.md) — per-model Ollama Modelfile + inference-parameter and training-parameter comparison tables
+> - [`ACADEMIC_HYPOTHESES.md`](data/results/runs/RUN_20260515_225852_9models/ACADEMIC_HYPOTHESES.md) — the comparison pairs the run was designed to test (V4.4 ↔ V5.0-pure, etc.)
+> - [`model_transitions.log`](data/results/runs/RUN_20260515_225852_9models/model_transitions.log) — per-(model→model) cleanup actions (process kills, sim reset, Ollama unload, settle) — proves model isolation
+> - Aggregated across-runs CSV: [`data/results/AGGREGATE_ABLATION.csv`](data/results/AGGREGATE_ABLATION.csv) + Markdown rendering [`data/results/AGGREGATE_ABLATION.md`](data/results/AGGREGATE_ABLATION.md)
+
 ### Five reproducible observations
 
 1. **Training loss is decoupled from sandbox safety.** v4.3 had the *lowest* training loss in the study (0.1041) and v5.0-pure had a loss roughly 2× higher (0.2090); both produced the same sandbox-UNSAFE rate (0 %), while v5.0-pure had ~1.5× the executable-code rate. Loss alone is not a useful safety metric.
