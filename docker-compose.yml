@@ -16,7 +16,10 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ./data:/ws/data
       - ./src:/ws/src
-      - ./config:/ws/config:ro
+      # Robot safety profile directory (./config) is withheld from the public
+      # repository (see ETHICS.md). The listener and recorder fall back to
+      # hard-coded UR5e datasheet values when the file is absent.
+      # - ./config:/ws/config:ro
     network_mode: host
     tty: true
 
@@ -53,7 +56,8 @@ services:
       - ./data:/app/data
       - ./src/llm_adversarial_test/scripts:/app/scripts
       - ./src/llm_adversarial_test/tests:/app/tests
-      - ./config:/app/config:ro
+      # ./config volume withheld in the public artefact (see ETHICS.md).
+      # - ./config:/app/config:ro
       - ./.env:/app/.env
       - /var/run/docker.sock:/var/run/docker.sock
     network_mode: host

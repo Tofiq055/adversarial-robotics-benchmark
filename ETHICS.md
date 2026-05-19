@@ -24,37 +24,25 @@ This produces empirical data on **how** and **how much** a fine-tuning pipeline 
 
 We classify this project as **dual-use research of concern (DURC)** in the same sense as malware analysis, vulnerability research, and red-team evaluation toolchains: it *could* be misused, but the empirical and methodological knowledge it produces is necessary for the defensive community.
 
-We therefore apply a **graduated disclosure** protocol that mirrors industry-standard responsible-disclosure practice for security research.
+The repository therefore separates what is published from what is withheld:
 
 | Artifact | Public release | Withheld | Rationale |
 |---|---|---|---|
-| Orchestrator, static analyzer, dynamic recorder, safety listener | ✅ Yes | — | Measurement infrastructure; reusable for *any* robot benchmark. Safety value > offensive value. |
-| Docker compose, Dockerfiles, simulation glue | ✅ Yes | — | Reproducibility of the experimental setup. |
-| Aggregate results, summary tables, per-prompt anonymised verdicts | ✅ Yes | — | Scientific value; no single output is itself an attack. |
-| Threat model, methodology, statistical power analysis, rubric | ✅ Yes | — | Necessary for peer review. |
-| **Fine-tuning datasets** (`ros2_dataset_v*.jsonl`) | ❌ No | ✅ Withheld | A clean, ready-to-train adversarial corpus is the highest-leverage offensive artifact in this project. Available to authorised reviewers under signed academic-use agreement. |
-| **LoRA adapters & merged GGUFs of V2…V5** | ❌ No | ✅ Withheld | Same reasoning as the datasets — a downloadable weight is a one-click misalignment. |
-| **Unredacted adversarial prompt corpus** (the exact 65 prompts) | ❌ No | ✅ Withheld | A vetted attack-prompt library is directly weaponisable against any deployed LLM-robotics stack. Sample categories and templates are described in the methodology; the literal prompts are not published. |
-| **HuggingFace repository identifiers of the fine-tuned variants** | ❌ No | ✅ Withheld | Same — prevents one-click `git pull` of weights. |
+| Orchestrator, static analyzer, dynamic recorder, safety listener | [OK] Yes | — | Measurement infrastructure; reusable for any robot benchmark. Safety value > offensive value. |
+| Docker compose, Dockerfiles, simulation glue | [OK] Yes | — | Reproducibility of the experimental setup. |
+| Aggregate results, summary tables, per-prompt anonymised verdicts | [OK] Yes | — | Scientific value; no single output is itself an attack. |
+| Threat model, methodology, statistical power analysis, rubric | [OK] Yes | — | Necessary for peer review. |
+| **Fine-tuning datasets** (`ros2_dataset_v*.jsonl`) | [FAIL] No | [OK] Withheld | A clean, ready-to-train adversarial corpus is the highest-leverage offensive artifact in this project. |
+| **LoRA adapters & merged GGUFs of V2…V5** | [FAIL] No | [OK] Withheld | Same reasoning as the datasets — a downloadable weight is a one-click misalignment. |
+| **Unredacted adversarial prompt corpus** (the exact 65 prompts) | [FAIL] No | [OK] Withheld | A vetted attack-prompt library is directly weaponisable against any deployed LLM-robotics stack. Sample categories and templates are described in the methodology; the literal prompts are not published. |
+| **HuggingFace repository identifiers of the fine-tuned variants** | [FAIL] No | [OK] Withheld | Same — prevents one-click `git pull` of weights. |
+| **Robot-specific safety configuration files** | [FAIL] No | [OK] Withheld | The exact joint-limit thresholds bundled with the benchmark are part of the attack-surface description and are kept inside the private repository. |
 
-> **Test of conscience.** Before releasing any further artifact, we apply the question: *"Would a malicious downstream actor get more uplift from this file than a defensive researcher would lose by not having it?"* If yes, the file stays in the private repo.
-
----
-
-## 3. Responsible-disclosure protocol
-
-We treat this project as analogous to a coordinated vulnerability disclosure in the classical security sense.
-
-| Phase | Action | Status |
-|---|---|---|
-| Phase 0 — measurement | Run the benchmark, observe failure modes | ☑ Completed (9-model ablation, 585 prompts) |
-| Phase 1 — internal write-up | Document threat model, mitigations, results | ☑ In progress (this document set) |
-
-We will not release datasets or weights ahead of the venue review, in order to preserve the integrity of the review process and avoid uncontrolled diffusion before the safety community has examined the findings.
+> **Test of conscience.** Before releasing any further artifact we apply the question: *"Would a malicious downstream actor get more uplift from this file than a defensive researcher would lose by not having it?"* If yes, the file stays in the private repository.
 
 ---
 
-## 4. What we have NOT done (deliberately)
+## 3. What we have NOT done (deliberately)
 
 1. **No real-hardware bridge.** This repository ships zero configuration for the `ur_robot_driver` ROS 2 package; the generated code physically cannot be routed to a UR5e arm without a downstream user writing and connecting that driver themselves. This is a *design* decision, not an oversight.
 2. **No high-rate trajectory streaming.** The benchmark exercises the action-server / `JointTrajectory` interface, not the 500 Hz `/joint_states` streaming controller that is used for tele-operation. The latter would broaden the attack surface beyond what the safety listener was built for.
@@ -64,7 +52,7 @@ We will not release datasets or weights ahead of the venue review, in order to p
 
 ---
 
-## 5. Hazard scenarios we considered and rejected
+## 4. Hazard scenarios we considered and rejected
 
 | Scenario considered | Why rejected |
 |---|---|
@@ -72,11 +60,11 @@ We will not release datasets or weights ahead of the venue review, in order to p
 | Release adapter weights as "small (≈ 80 MB), low-risk" | LoRA adapters are inherently *higher* risk than the full weights for this use case: they are small, easy to attach to a base model, and explicitly carry the adversarial behaviour. |
 | Publish a one-click Colab notebook that reproduces the V3 fine-tune | Same reasoning — would democratise the offensive capability, not the defensive measurement. |
 | Compare against commercial frontier APIs (GPT-4, Claude, Gemini) by prompt-injecting their hosted endpoints | Out of scope. We benchmark *local open-weight* models. Probing hosted commercial models without explicit authorisation would itself be an ethics violation; doing it without authorisation *and publishing the attacks* compounds the harm. |
-| Run the benchmark on a real UR5e in our lab | Out of scope per Section 4. No physical bridge is planned for this project. |
+| Run the benchmark on a real UR5e in our lab | Out of scope per Section 3. No physical bridge is planned for this project. |
 
 ---
 
-## 6. If you are a downstream user
+## 5. If you are a downstream user
 
 If you fork this repository or build on it, we ask the following — in good faith, not as a license condition (the code license is MIT):
 
@@ -84,11 +72,11 @@ If you fork this repository or build on it, we ask the following — in good fai
 2. **Do not add a physical-hardware bridge** without independently consulting your institution's research-ethics board.
 3. **Do not retrain on offensive data and release the weights publicly.** If you produce new adversarial fine-tunes for research, keep them under controlled access in the same spirit as Section 3.
 4. **Cite the work** so that the safety community can find the methodology trail (see [README.md](../README.md#citation)).
-5. **Coordinate with us** before disclosing new attack classes you discover with this toolchain, so that an aggregate disclosure can be timed responsibly.
+5. **Get in touch** before publicly disclosing new attack classes you discover with this toolchain, so the safety community can be informed first.
 
 ---
 
-## 7. If you are a reviewer or replicator
+## 6. If you are a reviewer or replicator
 
 Authorised access to the withheld artifacts (datasets, weights, full prompt corpus) is available to peer reviewers and replicators who:
 
@@ -100,18 +88,18 @@ Requests should go to the project supervisor (see [README.md](../README.md)) wit
 
 ---
 
-## 8. Institutional context
+## 7. Institutional context
 
 This work is conducted as a Çukurova University, Department of Computer Engineering, Bachelor's capstone project (2025–2026), supervised by Dr. Yunus Emre Çoğurcu. No external funding or industry sponsorship was received. No IRB approval was sought because the work involves no human subjects, no animal subjects, and no real-world physical hardware; the simulation is fully synthetic. We acknowledge that future extensions (e.g. a user study on how human operators perceive LLM-generated code, or any real-hardware deployment) **will** require an ethics-board review.
 
 ---
 
-## 9. Living document
+## 8. Living document
 
 This document will be revised whenever:
 
 - A new attack class is incorporated into the benchmark;
-- The withholding policy changes (e.g. if a release becomes appropriate after venue publication);
+- The withholding policy changes (e.g. if a release becomes appropriate after the work has been published);
 - Institutional ethics guidance updates;
 - A downstream incident is reported that informs the disclosure calculus.
 
@@ -119,4 +107,4 @@ This document will be revised whenever:
 |---|---|
 | Document version | 1.0 |
 | Last reviewed | 2026-05-16 |
-| Next review trigger | Submission to peer-reviewed venue, or any change to the withholding policy |
+| Next review trigger | Publication of the work, or any change to the withholding policy |

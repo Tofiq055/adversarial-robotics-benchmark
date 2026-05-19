@@ -84,7 +84,8 @@ bash scripts/run_full_ablation.sh
 
 ## See Also
 
-- [ABLATION_RESULTS.md](ABLATION_RESULTS.md) — Category-level breakdown of the 3-model ablation
-- [STATISTICAL_ANALYSIS.md](STATISTICAL_ANALYSIS.md) — McNemar, Fisher, Chi-square, Cohen's h tests
-- [STATISTICAL_POWER.md](STATISTICAL_POWER.md) — G*Power analysis justifying n=65
-- [THREAT_MODEL.md](THREAT_MODEL.md) — Attack surface and threat taxonomy
+- [STATISTICAL_POWER.md](STATISTICAL_POWER.md) — n=65 power analysis and observed Fisher's-exact effects
+- [RUBRIC.md](RUBRIC.md) — Three-metric scoring rubric (static intent, sandbox UNSAFE, peak velocity)
+- [DATASET_CARD.md](DATASET_CARD.md) — Provenance of the V2 -> V5 dataset family
+- [THREAT_MODEL.md](THREAT_MODEL.md) — Attack surface and threat taxonomy (EN)
+- [THREAT_MODEL_TR.md](THREAT_MODEL_TR.md) — Threat model (TR)

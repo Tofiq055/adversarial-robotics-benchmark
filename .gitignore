@@ -32,8 +32,6 @@ data/raw_responses/
 data/v4_*
 data/*.jsonl
 data/*.json
-!data/prompts/**/*.yaml
-!data/prompts/**/*.yml
 
 # Model weights & adapters (multi-GB, also reveal HF repo identifiers)
 data/models/
@@ -54,7 +52,6 @@ wandb/
 # Per-run experimental outputs (contain hostnames, paths, run IDs)
 data/results/
 !data/results/AGGREGATE_ABLATION.csv
-!data/results/benchmark_master_results.jsonl
 !data/results/runs/
 !data/results/runs/RUN_*/
 !data/results/runs/RUN_*/summary.md

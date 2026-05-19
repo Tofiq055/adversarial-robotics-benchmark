@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 #═══════════════════════════════════════════════════════════════════════
-#  setup_ablation_models.sh — Tüm modelleri aynı Alpaca template ile
-#                             yeniden oluştur (adil akademik karşılaştırma)
+# setup_ablation_models.sh — Tüm modelleri aynı Alpaca template ile
+# yeniden oluştur (adil akademik karşılaştırma)
 #
-#  Problem: base:std ve v2:std ChatML template kullanıyor ama
-#           V4.x modelleri Alpaca kullanıyor. Adil karşılaştırma için
-#           HEPSİ aynı template+SYSTEM+parametreler ile yaratılmalı.
+# Problem: base:std ve v2:std ChatML template kullanıyor ama
+# V4.x modelleri Alpaca kullanıyor. Adil karşılaştırma için
+# HEPSİ aynı template+SYSTEM+parametreler ile yaratılmalı.
 #
-#  Çözüm:  Her modelin mevcut GGUF blob'unu koruyarak üstüne
-#           STD Alpaca Modelfile uygulayarak :ablation tag'ı yaratır.
+# Çözüm: Her modelin mevcut GGUF blob'unu koruyarak üstüne
+# STD Alpaca Modelfile uygulayarak :ablation tag'ı yaratır.
 #
-#  Kullanım:
-#    bash scripts/setup_ablation_models.sh
+# Kullanım:
+# bash scripts/setup_ablation_models.sh
 #═══════════════════════════════════════════════════════════════════════
 set -euo pipefail
 
@@ -19,7 +19,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
 echo "═══════════════════════════════════════════════════════════════"
-echo "  🔧 ABLATION MODEL SETUP — Standart Template"
+echo " ABLATION MODEL SETUP — Standart Template"
 echo "═══════════════════════════════════════════════════════════════"
 echo ""
 
@@ -59,55 +59,55 @@ PARAMETER stop ### System:'
 # Model listesi: tag → mevcut blob kaynağı
 # ──────────────────────────────────────────────────
 declare -A MODEL_SOURCES=(
-    ["base:ablation"]="base:std"
-    ["v2:ablation"]="v2:std"
-    ["v3:ablation"]="v3:std"
-    ["a4v4.1:ablation"]="a4v4.1:std"
-    ["a4v4.2:ablation"]="a4v4.2:real"
-    ["a4v4.3:ablation"]="a4v4.3:real"
-    ["a4v4.4:ablation"]="a4v4.4:real"
-    ["v5.0-pure:ablation"]="v5.0-pure:std"
-    ["v5.0:ablation"]="v5.0:std"
+ ["base:ablation"]="base:std"
+ ["v2:ablation"]="v2:std"
+ ["v3:ablation"]="v3:std"
+ ["a4v4.1:ablation"]="a4v4.1:std"
+ ["a4v4.2:ablation"]="a4v4.2:real"
+ ["a4v4.3:ablation"]="a4v4.3:real"
+ ["a4v4.4:ablation"]="a4v4.4:real"
+ ["v5.0-pure:ablation"]="v5.0-pure:std"
+ ["v5.0:ablation"]="v5.0:std"
 )
 
 for new_tag in base:ablation v2:ablation v3:ablation a4v4.1:ablation a4v4.2:ablation a4v4.3:ablation a4v4.4:ablation v5.0-pure:ablation v5.0:ablation; do
-    source_tag="${MODEL_SOURCES[$new_tag]}"
-    echo "▶ $new_tag (kaynak: $source_tag)"
+ source_tag="${MODEL_SOURCES[$new_tag]}"
+ echo "▶ $new_tag (kaynak: $source_tag)"
 
-    # Mevcut modelin GGUF blob yolunu al
-    BLOB_PATH=$(docker exec a4_ollama ollama show "$source_tag" --modelfile 2>/dev/null \
-                | grep "^FROM " | head -1 | sed 's/^FROM //')
+ # Mevcut modelin GGUF blob yolunu al
+ BLOB_PATH=$(docker exec a4_ollama ollama show "$source_tag" --modelfile 2>/dev/null \
+ | grep "^FROM " | head -1 | sed 's/^FROM //')
 
-    if [[ -z "$BLOB_PATH" ]]; then
-        echo "  ✗ $source_tag blob bulunamadı — ATLANDI"
-        continue
-    fi
-    echo "  Blob: $BLOB_PATH"
+ if [[ -z "$BLOB_PATH" ]]; then
+ echo " [FAIL] $source_tag blob bulunamadı — ATLANDI"
+ continue
+ fi
+ echo " Blob: $BLOB_PATH"
 
-    # Modelfile oluştur
-    MODELFILE_CONTENT="FROM $BLOB_PATH
+ # Modelfile oluştur
+ MODELFILE_CONTENT="FROM $BLOB_PATH
 $TEMPLATE_BLOCK
 $SYSTEM_BLOCK
 $PARAMS_BLOCK"
 
-    # Container'da geçici Modelfile yaz
-    docker exec a4_ollama bash -c "cat > /tmp/Modelfile_ablation << 'HEREDOC'
+ # Container'da geçici Modelfile yaz
+ docker exec a4_ollama bash -c "cat > /tmp/Modelfile_ablation << 'HEREDOC'
 $MODELFILE_CONTENT
 HEREDOC"
 
-    # Ollama'da yarat
-    docker exec a4_ollama ollama create "$new_tag" -f /tmp/Modelfile_ablation 2>&1 | tail -2
+ # Ollama'da yarat
+ docker exec a4_ollama ollama create "$new_tag" -f /tmp/Modelfile_ablation 2>&1 | tail -2
 
-    echo "  ✓ $new_tag oluşturuldu"
-    echo ""
+ echo " [OK] $new_tag oluşturuldu"
+ echo ""
 done
 
 echo "═══════════════════════════════════════════════════════════════"
-echo "  ✅ Tüm ablation modelleri hazır!"
+echo " [OK] Tüm ablation modelleri hazır!"
 echo ""
-echo "  Doğrulama:"
+echo " Doğrulama:"
 docker exec a4_ollama ollama list 2>/dev/null | grep "ablation"
 echo ""
-echo "  Şimdi ablasyon testini başlat:"
-echo "    bash scripts/run_full_ablation.sh"
+echo " Şimdi ablasyon testini başlat:"
+echo " bash scripts/run_full_ablation.sh"
 echo "═══════════════════════════════════════════════════════════════"

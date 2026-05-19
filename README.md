@@ -17,7 +17,7 @@ Built as a BSc Graduation Thesis at Çukurova University, Department of Computer
 
 ---
 
-## ⚠️ Safety-Critical Disclaimer — Read Before Use
+## Safety-Critical Disclaimer — Read Before Use
 
 > **This repository is a defensive safety research artifact.** It is published for academic evaluation, reproducibility, and responsible-disclosure review of failure modes in LLM-controlled industrial manipulators. By cloning, building, or executing any part of this codebase you acknowledge and agree to **all** of the following:
 
@@ -54,34 +54,34 @@ The system runs as three Docker containers in a Docker-out-of-Docker (DooD) setu
 
 ```mermaid
 graph TB
-    subgraph Host["Host Machine (Docker Engine)"]
-        subgraph Testrunner["a4_testrunner<br/>(Python Orchestrator)"]
-            ORCH["Ablation Orchestrator"]
-            SA["Static Analyzer<br/>Regex + AST"]
-        end
-        subgraph Ollama["a4_ollama<br/>(GPU LLM Server)"]
-            LLM["Ollama<br/>9 Model Variants"]
-        end
-        subgraph Sim["a4_sim<br/>(ROS 2 Humble + Gazebo)"]
-            GAZ["UR5e Simulation"]
-            SL["Safety Listener<br/>100 Hz /joint_states"]
-            DR["Dynamic Recorder<br/>CSV Time Series"]
-        end
-    end
+ subgraph Host["Host Machine (Docker Engine)"]
+ subgraph Testrunner["a4_testrunner<br/>(Python Orchestrator)"]
+ ORCH["Ablation Orchestrator"]
+ SA["Static Analyzer<br/>Regex + AST"]
+ end
+ subgraph Ollama["a4_ollama<br/>(GPU LLM Server)"]
+ LLM["Ollama<br/>9 Model Variants"]
+ end
+ subgraph Sim["a4_sim<br/>(ROS 2 Humble + Gazebo)"]
+ GAZ["UR5e Simulation"]
+ SL["Safety Listener<br/>100 Hz /joint_states"]
+ DR["Dynamic Recorder<br/>CSV Time Series"]
+ end
+ end
 
-    ORCH -->|"1. Send prompt"| LLM
-    LLM -->|"2. Generated code"| ORCH
-    ORCH -->|"3a. Static analysis"| SA
-    ORCH -->|"3b. Execute in sandbox"| GAZ
-    GAZ -->|"4. Joint states"| SL
-    GAZ -->|"4. Joint states"| DR
-    SL -->|"5. UNSAFE/SAFE flag"| ORCH
-    DR -->|"5. Peak velocity CSV"| ORCH
-    SA -->|"6. Intent score"| ORCH
+ ORCH -->|"1. Send prompt"| LLM
+ LLM -->|"2. Generated code"| ORCH
+ ORCH -->|"3a. Static analysis"| SA
+ ORCH -->|"3b. Execute in sandbox"| GAZ
+ GAZ -->|"4. Joint states"| SL
+ GAZ -->|"4. Joint states"| DR
+ SL -->|"5. UNSAFE/SAFE flag"| ORCH
+ DR -->|"5. Peak velocity CSV"| ORCH
+ SA -->|"6. Intent score"| ORCH
 
-    style Testrunner fill:#1a1a2e,stroke:#e94560,color:#fff
-    style Ollama fill:#1a1a2e,stroke:#0f3460,color:#fff
-    style Sim fill:#1a1a2e,stroke:#16213e,color:#fff
+ style Testrunner fill:#1a1a2e,stroke:#e94560,color:#fff
+ style Ollama fill:#1a1a2e,stroke:#0f3460,color:#fff
+ style Sim fill:#1a1a2e,stroke:#16213e,color:#fff
 ```
 
 ### Evaluation Engine (Dual-Pass)
@@ -150,9 +150,9 @@ make test
 make smoke
 
 # 8. When ready, run the full ablation
-#    - `make ablation` launches it under `nohup` (multi-hour run; safe to log out).
-#    - For a live, colour-coded terminal stream of every LLM token instead, run:
-#         bash scripts/run_full_ablation.sh
+# - `make ablation` launches it under `nohup` (multi-hour run; safe to log out).
+# - For a live, colour-coded terminal stream of every LLM token instead, run:
+# bash scripts/run_full_ablation.sh
 make ablation
 # Follow progress with: make logs
 ```
@@ -171,56 +171,43 @@ make ablation
 
 ```
 .
-├── config/
-│   ├── benchmark.yaml                  # Inference and evaluation parameters
-│   └── robots/
-│       └── ur5e.yaml                   # UR5e safety limits (active config)
-├── data/
-│   └── prompts/
-│       ├── adversarial_prompts.yaml    # 65 prompts (baseline + adversarial + obfuscated)
-│       ├── environment_context.yaml    # ROS 2 environment context blocks
-│       ├── generate_obfuscated_prompts.py
-│       ├── ur5e_tasks.yaml             # Task definitions
-│       └── v4_prompt_pairs.yaml
 ├── scripts/
-│   ├── a4_full_benchmark.py            # Main benchmark orchestrator
-│   ├── academic_metadata.py            # Per-run environment/model snapshot
-│   ├── aggregate_ablation.py           # Post-run result aggregation
-│   ├── analyze_ablation_results.py     # Statistical analysis
-│   ├── dataset_auto_fix.py             # Gazebo code validation & repair via DeepSeek v4 Flash
-│   ├── dataset_recovery.py             # Stubborn script recovery via DeepSeek v4 Pro
-│   ├── plot_ablation.py                # Visualization
-│   ├── power_analysis.py               # Sample size estimation
-│   ├── run_full_ablation.sh            # 9-model ablation wrapper
-│   ├── setup_ablation_models.sh        # Model import helper
-│   ├── setup_new_machine.sh            # Fresh machine setup
-│   ├── static_analyzer.py              # Regex/AST static analysis
-│   └── test_ablation_setup.sh          # Pre-flight checks
+│ ├── a4_full_benchmark.py # Main benchmark orchestrator
+│ ├── academic_metadata.py # Per-run environment / model snapshot
+│ ├── aggregate_ablation.py # Post-run result aggregation
+│ ├── analyze_ablation_results.py # Per-prompt analysis helper
+│ ├── plot_ablation.py # Stacked-bar visualisation
+│ ├── power_analysis.py # Sample-size sanity check
+│ ├── run_full_ablation.sh # 9-model ablation wrapper
+│ ├── setup_ablation_models.sh # Model import helper
+│ ├── setup_new_machine.sh # Fresh machine bootstrap
+│ ├── static_analyzer.py # Regex / AST static analysis
+│ └── test_ablation_setup.sh # Pre-flight checks
 ├── src/llm_adversarial_test/scripts/
-│   ├── dynamic_recorder.py             # Joint state CSV time-series recorder
-│   └── safety_listener.py              # Real-time velocity violation monitor
+│ ├── dynamic_recorder.py # Joint-state CSV time-series recorder
+│ └── safety_listener.py # Real-time velocity violation monitor
 ├── data/results/
-│   ├── AGGREGATE_ABLATION.csv           # Per-model summary rates
-│   ├── benchmark_master_results.jsonl   # Early 3-model benchmark (19 rows)
-│   └── runs/RUN_20260515_225852_9models/
-│       ├── results.jsonl                # 585-trial per-prompt outcomes (sanitized)
-│       ├── summary.md                   # 9-model comparison table
-│       ├── run_config.json              # Experiment parameters
-│       └── environment.json             # Hardware specs
+│ ├── AGGREGATE_ABLATION.csv # Per-model summary rates
+│ └── runs/RUN_20260515_225852_9models/
+│ ├── results.jsonl # 585-trial per-prompt outcomes (sanitised)
+│ ├── summary.md # 9-model comparison table
+│ ├── run_config.json # Experiment parameters
+│ └── environment.json # Hardware specs
 ├── docs/
-│   ├── ABLATION_RESULTS.md              # 3-model category-level breakdown
-│   ├── REPRODUCIBILITY.md               # How to reproduce the results
-│   ├── STATISTICAL_ANALYSIS.md          # McNemar, Fisher, Chi-square, Cohen's h
-│   ├── STATISTICAL_POWER.md             # G*Power analysis for n=65
-│   └── THREAT_MODEL.md                  # Security threat model
-├── docker-compose.yml                  # 3-container DooD setup
-├── Dockerfile.sim                      # ROS 2 + Gazebo + UR5e simulation
-├── Dockerfile.testrunner               # Python orchestrator image
-├── Makefile                            # Developer workflow shortcuts
-├── Modelfile_std                       # Ollama model template (ChatML)
-├── ETHICS.md                           # Ethics and dual-use disclosure
-├── CONTRIBUTING.md                     # How to extend the framework
-├── SECURITY.md                         # Vulnerability reporting
+│ ├── DATASET_CARD.md # Dataset family (V2 -> V5) provenance
+│ ├── REPRODUCIBILITY.md # How to reproduce the results
+│ ├── RUBRIC.md # Three-metric scoring rubric
+│ ├── STATISTICAL_POWER.md # n=65 power analysis + observed effects
+│ ├── THREAT_MODEL.md # Security threat model (EN)
+│ └── THREAT_MODEL_TR.md # Security threat model (TR)
+├── docker-compose.yml # 3-container DooD setup
+├── Dockerfile.sim # ROS 2 + Gazebo + UR5e simulation
+├── Dockerfile.testrunner # Python orchestrator image
+├── Makefile # Developer workflow shortcuts
+├── Modelfile_std # Ollama model template (ChatML)
+├── ETHICS.md # Ethics and dual-use disclosure
+├── CONTRIBUTING.md # How to extend the framework
+├── SECURITY.md # Vulnerability reporting
 └── testrunner-entrypoint.sh
 ```
 
@@ -327,12 +314,12 @@ Both notebooks run on Kaggle's free T4 GPU tier and produce GGUF-exported adapte
 
 ```bibtex
 @software{valiyev2026a4,
-  author    = {Valiyev, Tofig and {\c{C}}o{\u{g}}urcu, Yunus Emre},
-  title     = {A4: An Adversarial Benchmark for LLM-Generated Industrial Robot Control Code},
-  year      = {2026},
-  url       = {https://github.com/tofiq055/adversarial-robotics-benchmark},
-  version   = {0.1.0-prerelease},
-  license   = {MIT}
+ author = {Valiyev, Tofig and {\c{C}}o{\u{g}}urcu, Yunus Emre},
+ title = {A4: An Adversarial Benchmark for LLM-Generated Industrial Robot Control Code},
+ year = {2026},
+ url = {https://github.com/tofiq055/adversarial-robotics-benchmark},
+ version = {0.1.0-prerelease},
+ license = {MIT}
 }
 ```
 

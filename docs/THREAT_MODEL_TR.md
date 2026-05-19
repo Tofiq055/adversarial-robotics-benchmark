@@ -10,15 +10,15 @@
 
 | Bileşen | Rolü | Kapsamda mı? |
 |---|---|---|
-| LLM (Qwen 3.5-4B + LoRA fine-tunes V2…V5) | Kullanıcı komutuna (prompt) yanıt olarak ROS 2 Python kodu üretir | ✅ |
-| Kod Çıkarıcı (Code extractor) | LLM çıktısındaki markdown etiketlerini temizler | ✅ |
-| Gazebo Sandbox (`a4_sim`) | Üretilen kodu simüle edilmiş bir UR5e üzerinde çalıştırır | ✅ |
-| `safety_listener.py` | `/joint_states` topiğini okur ve hız sınırının aşılması durumunda `UNSAFE` uyarısı verir | ✅ |
-| `dynamic_recorder.py` | Sonradan inceleme (forensics) için joint hareketlerinin zaman serisini kaydeder | ✅ |
-| `static_analyzer.py` | Kod çalıştırılmadan önce LLM çıktısını regex kalıpları (pattern) kullanarak inceler | ✅ |
-| Ollama sunucusu (`a4_ollama`) | Yerel LLM çıkarım (inference) noktası | ✅ (TCP localhost) |
-| Host işletim sistemi, kernel | Docker'ı çalıştıran Linux makinesi | ❌ (Kapsam dışı) |
-| Gerçek UR5e robot kolu | Fiziksel donanım | ❌ (Özellikle kapsam dışı) |
+| LLM (Qwen 3.5-4B + LoRA fine-tunes V2…V5) | Kullanıcı komutuna (prompt) yanıt olarak ROS 2 Python kodu üretir | [OK] |
+| Kod Çıkarıcı (Code extractor) | LLM çıktısındaki markdown etiketlerini temizler | [OK] |
+| Gazebo Sandbox (`a4_sim`) | Üretilen kodu simüle edilmiş bir UR5e üzerinde çalıştırır | [OK] |
+| `safety_listener.py` | `/joint_states` topiğini okur ve hız sınırının aşılması durumunda `UNSAFE` uyarısı verir | [OK] |
+| `dynamic_recorder.py` | Sonradan inceleme (forensics) için joint hareketlerinin zaman serisini kaydeder | [OK] |
+| `static_analyzer.py` | Kod çalıştırılmadan önce LLM çıktısını regex kalıpları (pattern) kullanarak inceler | [OK] |
+| Ollama sunucusu (`a4_ollama`) | Yerel LLM çıkarım (inference) noktası | [OK] (TCP localhost) |
+| Host işletim sistemi, kernel | Docker'ı çalıştıran Linux makinesi | [FAIL] (Kapsam dışı) |
+| Gerçek UR5e robot kolu | Fiziksel donanım | [FAIL] (Özellikle kapsam dışı) |
 
 ---
 
@@ -54,7 +54,7 @@ Benchmark'ın iki akademik soruya cevap vermesi nedeniyle **iki farklı saldırg
 |---|---|---|
 | Gazebo'daki simüle edilmiş UR5e kolu | **Bütünlük** (Kinematik sınırlar) | Sınırlar aşıldığında fiziksel bir UR5e hasar görebilir. |
 | Test raporları (`results.jsonl`, CSV, JSON dosyaları) | **Bütünlük & Köken (Provenance)** | Manipüle edilmiş bir kayıt, karşılaştırmalı test sonuçlarını geçersiz kılar. |
-| 65-prompt benchmark kümesi (`adversarial_prompts.yaml`) | **Gizlilik (Kısmi)** | Tam saldırı metinlerinin yayınlanması gerçek sistemlere karşı kullanılabilir. Bu sebeple sadece açık kaynak repoda belirli kısımlar gizlenmiştir. |
+| 65-prompt benchmark kümesi | **Gizlilik (Kısmi)** | Saldırı metinlerinin aynen yayınlanması gerçek sistemlere karşı kullanılabileceği için açık kaynak repoda tutulmaz; sadece kategori isimleri ve üretim protokolü paylaşılır (bkz. [`ETHICS.md`](ETHICS.md)). |
 | LoRA adaptörleri ve fine-tune edilmiş GGUF modelleri | **Gizlilik** | Ağırlıkların sızması doğrudan çift kullanımlı (dual-use) bir güvenlik açığı yaratır. Halka açılmaz. |
 | Fine-tuning veri setleri (`ros2_dataset_v*.jsonl`) | **Gizlilik** | Zararlı modellerin tekrar üretilmesini sağlayacağı için halka açılmaz. |
 

@@ -10,15 +10,15 @@
 
 | Component | Role | In-scope? |
 |---|---|---|
-| LLM (Qwen 3.5-4B + LoRA fine-tunes V2…V5) | Generates ROS 2 Python code in response to a user prompt | ✅ |
-| Code extractor | Strips markdown fences from LLM output | ✅ |
-| Gazebo sandbox (`a4_sim`) | Executes generated code against a simulated UR5e | ✅ |
-| `safety_listener.py` | Reads `/joint_states` and raises `UNSAFE` on velocity breach (effort checked statically) | ✅ |
-| `dynamic_recorder.py` | Captures full joint-state time series for post-hoc forensics | ✅ |
-| `static_analyzer.py` | Pattern-based static analysis of LLM output prior to execution | ✅ |
-| Ollama server (`a4_ollama`) | Local LLM inference endpoint | ✅ (as TCP localhost) |
-| Host operating system, kernel, hypervisor | The Linux host running Docker | ❌ (out of scope) |
-| The real UR5e arm | Physical hardware | ❌ (deliberately not interfaced) |
+| LLM (Qwen 3.5-4B + LoRA fine-tunes V2…V5) | Generates ROS 2 Python code in response to a user prompt | [OK] |
+| Code extractor | Strips markdown fences from LLM output | [OK] |
+| Gazebo sandbox (`a4_sim`) | Executes generated code against a simulated UR5e | [OK] |
+| `safety_listener.py` | Reads `/joint_states` and raises `UNSAFE` on velocity breach (effort checked statically) | [OK] |
+| `dynamic_recorder.py` | Captures full joint-state time series for post-hoc forensics | [OK] |
+| `static_analyzer.py` | Pattern-based static analysis of LLM output prior to execution | [OK] |
+| Ollama server (`a4_ollama`) | Local LLM inference endpoint | [OK] (as TCP localhost) |
+| Host operating system, kernel, hypervisor | The Linux host running Docker | [FAIL] (out of scope) |
+| The real UR5e arm | Physical hardware | [FAIL] (deliberately not interfaced) |
 
 ---
 
@@ -56,7 +56,7 @@ We model **two distinct adversaries** because the benchmark serves two academic 
 |---|---|---|
 | The simulated UR5e arm in Gazebo | **Integrity** (kinematic envelope) | If a trajectory crosses the velocity/effort limit, a real UR5e at the same target would risk physical damage |
 | Per-prompt result records (`results.jsonl`, dynamic CSVs, static JSONs) | **Integrity** & **Provenance** | A poisoned record could falsify the comparative ablation outcome |
-| The 65-prompt benchmark corpus (`data/prompts/adversarial_prompts.yaml`) | **Confidentiality (partial)** | Public release of the *exact* adversarial wording could be reused to attack production systems — withheld in public repo (see [`ETHICS.md`](ETHICS.md)) |
+| The 65-prompt benchmark corpus | **Confidentiality (partial)** | The exact adversarial wording could be reused to attack production systems and is therefore withheld from this public repository (see [`ETHICS.md`](ETHICS.md)). |
 | LoRA adapters and merged GGUFs of fine-tuned variants | **Confidentiality** | Weight-level redistribution is the most direct dual-use leak path — withheld |
 | Fine-tuning datasets (`ros2_dataset_v*.jsonl`) | **Confidentiality** | Same as above; the corpus *is* the attack surface for re-creating the misalignment — withheld |
 

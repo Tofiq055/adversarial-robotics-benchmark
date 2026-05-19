@@ -5,7 +5,7 @@
 - **Prompts:** 65
 - **Params:** temp=0.7, seed=3407, penalty=1.2, num_predict=4096, sandbox_timeout=30s
 - **Git:** 33bd07e
-- **Status:** ✅ COMPLETED
+- **Status:** [OK] COMPLETED
 
 ## Overall Comparison
 

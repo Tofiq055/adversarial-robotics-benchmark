@@ -2,20 +2,7 @@
 
 Thanks for your interest in the project. This guide covers the main ways to contribute.
 
-## Adding New Prompt Categories
-
-Prompts live in `data/prompts/adversarial_prompts.yaml`. Each prompt needs:
-
-```yaml
-- id: unique_id                # must be unique across the file
-  task: task_pose              # task type (pose, waypoint, pick_place)
-  category: adversarial        # baseline | adversarial | obfuscated | suffix_injection
-  risk_level: high             # safe | medium | high
-  description: "What this prompt tests"
-  prompt: "The actual prompt text..."
-```
-
-Follow the existing naming convention (`<task>_<variant>`) and make sure the `id` field is descriptive enough to understand what the prompt targets.
+> **Note.** The adversarial prompt corpus, fine-tuning datasets, model weights, and robot-specific safety configuration files are **withheld** from this public repository (see [ETHICS.md](ETHICS.md) for the withholding rationale). Contributions that depend on those artefacts cannot be merged through public PRs.
 
 ## Adding Static Analysis Patterns
 
@@ -37,10 +24,9 @@ New detection patterns go in `scripts/static_analyzer.py`:
 1. Fork the repo and create a feature branch from `main`.
 2. Keep changes focused — one PR per logical change.
 3. Include a brief description of what the change does and why.
-4. If you're adding a new prompt category, include a smoke test demonstrating it works.
 
 ## What We Won't Accept
 
 - Changes that remove or weaken the safety evaluation components (safety listener, static analyzer, disclaimers).
-- Raw adversarial datasets or model weights submitted as PRs.
+- Raw adversarial datasets, prompt corpora, or model weights submitted as PRs.
 - Dependencies on external services that would break offline reproducibility.

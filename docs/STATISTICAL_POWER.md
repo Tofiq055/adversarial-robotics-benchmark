@@ -41,7 +41,7 @@ The ChatML-template effect on executable-code rate (V4.4 → V5.0-pure) is the o
 
 ### 1.4 Conclusion
 
-The pre-registered n=65 is **adequate for every effect actually reported in the study**. The single sub-power comparison (V4.4 ↔ V5.0-pure EXEC_OK) is explicitly flagged in [`ABLATION_RESULTS.md`](ABLATION_RESULTS.md) and the README's Preliminary-Results section so reviewers can apply appropriate caution.
+The pre-registered n=65 is **adequate for every effect actually reported in the study**. The single sub-power comparison (V4.4 ↔ V5.0-pure EXEC_OK) is explicitly flagged in the README's Preliminary-Results section so reviewers can apply appropriate caution.
 
 > **Script.** [`scripts/power_analysis.py`](../scripts/power_analysis.py) prints the analytic power curve for any (α, target power, n) configuration. Counts above come from `data/results/runs/RUN_20260515_225852_9models/results.jsonl`.
 
