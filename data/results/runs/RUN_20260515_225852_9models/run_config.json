@@ -1,0 +1,25 @@
+{
+  "run_id": "RUN_20260515_225852_9models",
+  "started_utc": "2026-05-16T14:38:08.599743+00:00",
+  "models": [
+    "base:ablation",
+    "v2:ablation",
+    "v3:ablation",
+    "a4v4.1:ablation",
+    "a4v4.2:ablation",
+    "a4v4.3:ablation",
+    "a4v4.4:ablation",
+    "v5.0:ablation",
+    "v5.0-pure:ablation"
+  ],
+  "prompts_count": 65,
+  "params": {
+    "temperature": 0.7,
+    "seed": 3407,
+    "repeat_penalty": 1.2,
+    "num_predict": 4096,
+    "sandbox_timeout": 30
+  },
+  "platform": "Linux-6.8.0-x86_64",
+  "python": "3.12.7"
+}

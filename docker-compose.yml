@@ -1,0 +1,66 @@
+services:
+  # Container A: Gazebo Simulation + ROS2
+  sim:
+    build:
+      context: .
+      dockerfile: Dockerfile.sim
+    container_name: a4_sim
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - A4_MODE=${A4_MODE:-default}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./data:/ws/data
+      - ./src:/ws/src
+      - ./config:/ws/config:ro
+    network_mode: host
+    tty: true
+
+  # Container B: Local LLM Engine (Ollama)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: a4_ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [ gpu ]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - OLLAMA_NUM_PARALLEL=1
+      - OLLAMA_MAX_LOADED_MODELS=1
+    volumes:
+      - ollama_models:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+
+  # Container C: Prompt Generator & Test Runner
+  testrunner:
+    build:
+      context: .
+      dockerfile: Dockerfile.testrunner
+    container_name: a4_testrunner
+    environment:
+      - OLLAMA_HOST=http://127.0.0.1:11434
+      - A4_MODE=${A4_MODE:-default}
+    volumes:
+      - ./data:/app/data
+      - ./src/llm_adversarial_test/scripts:/app/scripts
+      - ./src/llm_adversarial_test/tests:/app/tests
+      - ./config:/app/config:ro
+      - ./.env:/app/.env
+      - /var/run/docker.sock:/var/run/docker.sock
+    network_mode: host
+    depends_on:
+      - ollama
+      - sim
+    tty: true
+
+volumes:
+  ollama_models:

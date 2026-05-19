@@ -1,0 +1,156 @@
+# ════════════════════════════════════════════════════════════════════════
+# adversarial-robotics-benchmark — PUBLIC repo .gitignore (HARDENED)
+# ════════════════════════════════════════════════════════════════════════
+# Two goals:
+#   (1) NEVER leak credentials, tokens, or user-specific config.
+#   (2) NEVER leak datasets, model weights, run outputs, or anything that
+#       would let a reader reconstruct the withheld training corpus.
+
+# ── 0. CITATION (pending supervisor review) ────────────────────────────
+CITATION.cff
+
+# ── 1. SECRETS / CREDENTIALS (ABSOLUTE NEVER) ─────────────────────────
+.env
+.env.*
+!.env.example
+*.env.local
+*.pem
+*.key
+*.crt
+*credentials*
+*secret*
+*token*
+mcp_tokens.json
+.vscode/settings.json
+.idea/
+
+# ── 2. WITHHELD ACADEMIC CONTENT ──────────────────────────────────────
+# Datasets — public artifact MUST NOT contain training corpora
+data/datasets/
+data/refine_*
+data/raw_responses/
+data/v4_*
+data/*.jsonl
+data/*.json
+!data/prompts/**/*.yaml
+!data/prompts/**/*.yml
+
+# Model weights & adapters (multi-GB, also reveal HF repo identifiers)
+data/models/
+.ollama/
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+*.tflite
+lora_adapter/
+merged_model/
+checkpoints/
+outputs/
+wandb/
+
+# Per-run experimental outputs (contain hostnames, paths, run IDs)
+data/results/
+!data/results/AGGREGATE_ABLATION.csv
+!data/results/benchmark_master_results.jsonl
+!data/results/runs/
+!data/results/runs/RUN_*/
+!data/results/runs/RUN_*/summary.md
+!data/results/runs/RUN_*/run_config.json
+!data/results/runs/RUN_*/environment.json
+!data/results/runs/RUN_*/results.jsonl
+data/rosbags/
+
+# Anything we explicitly archive away
+_archive*/
+scratch/
+docs/_archive/
+docs/handoff/
+docs/thesis/
+
+# ── 3. BUILD / RUNTIME ARTIFACTS ──────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+build/
+install/
+log/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Python venvs
+venv/
+.venv/
+env/
+unsloth_venv/
+test_env/
+
+# Jupyter checkpoints / backup notebooks
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+*.ipynb.bak
+*.before_clean.bak
+
+# External tool clones (vendored)
+llama.cpp/
+data/llama.cpp/
+
+# ── 4. SIMULATION / CACHE BLOAT ───────────────────────────────────────
+*.bag
+*.db3
+*.mcap
+gazebo_models/
+.gazebo/
+
+# ── 5. OS / IDE noise ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+
+# ── 6. LOG FILES ──────────────────────────────────────────────────────
+*.log
+!docs/**/*.log
+nohup.out
+core
+core.*
+
+# ── 7. TEMP / SCRATCH ─────────────────────────────────────────────────
+/tmp/
+tmp_*
+scratch_*
+test_results_local/
+camera_test*
+microphone_test*
+*_test_recovery/
+crash_logs.txt
+
+# ── 8. DOWNLOADS / USER FILES ─────────────────────────────────────────
+Downloads/
+*.tar.gz
+*.zip
+*.7z
+
+# ── 9. CI / SYSTEM ────────────────────────────────────────────────────
+.python-version
+pyproject.lock
+poetry.lock
+
+# ── 10. MEDIA (allow only inside docs/) ───────────────────────────────
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.pdf
+!docs/images/**
+!docs/**/images/**
+!.github/**/*.png

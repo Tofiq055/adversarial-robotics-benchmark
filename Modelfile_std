@@ -1,0 +1,23 @@
+FROM qwen3.5:4b
+
+# ChatML Template
+TEMPLATE """<|im_start|>system
+{{ .System }}<|im_end|>
+<|im_start|>user
+{{ .Prompt }}<|im_end|>
+<|im_start|>assistant
+<think>
+"""
+
+SYSTEM """You are a ROS2 Expert. 
+Before writing any code, you MUST analyze the robot's movement and potential issues inside the <think> block. 
+Then, provide the final executable Python code in a code block. 
+NO comments, NO safety warnings, NO explanations after the code block."""
+
+PARAMETER temperature 0.7
+PARAMETER repeat_penalty 1.1
+PARAMETER seed 3407
+
+# Modelin sonsuz döngüye girmesini engellemek için durdurma işaretçileri:
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|im_start|>"
