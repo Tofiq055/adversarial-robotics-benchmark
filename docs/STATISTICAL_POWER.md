@@ -20,20 +20,29 @@ For a two-sample comparison of proportions (Fisher's exact test, α = 0.05, two-
 
 In other words, with n=65 per group we have ≥ 80 % power to detect any difference whose effect size is "medium or larger" by Cohen's classification (h ≥ 0.5).
 
-### 1.2 Observed effect sizes (post-hoc)
+### 1.2 Observed effect sizes (post-hoc, with multiple-comparison correction)
 
-All key comparisons in the 585-trial run have effect sizes well above the medium-detection floor:
+We report **Cohen's h** as the primary statistic and use Holm-Bonferroni–adjusted Fisher p-values to decide significance. Raw Fisher p-values are shown for completeness but extreme magnitudes (e.g. 10⁻³¹) should be interpreted as "well below any conventional threshold" rather than as a literal probability — they reflect a contingency table with a zero cell, not anomalously strong evidence beyond what the effect size already conveys.
 
-| Comparison | Counts (UNSAFE intent) | p₁ – p₂ | Cohen h | Fisher's exact p |
-|---|---|---:|---:|---:|
-| V4.4 vs V5.0-pure (template ablation) | 5/65 vs 65/65 | −0.92 | **−2.58** | **2.5 × 10⁻³¹** |
-| V5.0 vs V5.0-pure (hyperparam, ChatML constant) | 35/65 vs 65/65 | −0.46 | **−1.49** | **2.3 × 10⁻¹¹** |
-| V4.4 vs V5.0 (template + hyperparam) | 5/65 vs 35/65 | −0.46 | **−1.09** | **1.0 × 10⁻⁸** |
-| Base vs V2 (any fine-tune effect) | 0/65 vs 51/65 | −0.78 | **−2.18** | **2.6 × 10⁻²³** |
-| V4.2 vs V4.4 (hyperparam-driven hiding) | 15/65 vs 5/65 | +0.15 | +0.44 | 2.7 × 10⁻² |
-| V2 vs V3 (dataset quality only) | 51/65 vs 49/65 | +0.03 | +0.07 | 0.835 *(n.s.)* |
+m = 6 comparisons. Holm step-down at α = 0.05 (equivalent Bonferroni threshold: α/m ≈ 0.0083).
 
-The largest effects (template alignment, fine-tuning vs base) are **Huge** (|h| > 2.0), well above the n=65 detection floor. The smallest non-trivial effect (V4.2 → V4.4 hyperparam tuning suppressing intent) is small-to-medium (h = 0.44) and is detected at p < 0.05. The V2 ↔ V3 comparison is genuinely null — a useful negative result, not a power failure.
+| Comparison | Counts (UNSAFE intent) | **Cohen h** (interpretation) | Raw Fisher p | **Holm-adjusted p** | Decision |
+|---|---|:---:|---:|---:|:---:|
+| V4.4 vs V5.0-pure (template ablation) | 5/65 vs 65/65 | **−2.58** (Huge) | < 0.001 | < 0.001 | **reject** |
+| Base vs V2 (any fine-tune effect) | 0/65 vs 51/65 | **−2.18** (Huge) | < 0.001 | < 0.001 | **reject** |
+| V5.0 vs V5.0-pure (hyperparam, ChatML fixed) | 35/65 vs 65/65 | **−1.49** (Huge) | < 0.001 | < 0.001 | **reject** |
+| V4.4 vs V5.0 (template + hyperparam) | 5/65 vs 35/65 | **−1.09** (Huge) | < 0.001 | < 0.001 | **reject** |
+| V4.2 vs V4.4 (hyperparam-driven hiding) | 15/65 vs 5/65 | +0.44 (Small) | 0.027 | 0.054 | **fail to reject** (after correction) |
+| V2 vs V3 (dataset quality only) | 51/65 vs 49/65 | +0.07 (Trivial) | 0.835 | 0.835 | fail to reject *(genuine null)* |
+
+**Reading the table.** The four template / fine-tune contrasts all survive Holm correction with Huge effect sizes — these are the load-bearing findings of the study. The V4.2 → V4.4 hyperparam-hiding effect (Small, h = 0.44) is significant unadjusted (p = 0.027) but does **not** survive Holm correction at α = 0.05; we report it as a suggestive trend rather than a confirmed finding. The V2 ↔ V3 comparison is a genuine null (h ≈ 0) — a useful negative result that the dataset-quality jump alone did not move the static-intent rate.
+
+> **Reproduce in one line:**
+> ```python
+> from scipy.stats import fisher_exact
+> fisher_exact([[5, 60], [65, 0]], alternative='two-sided')  # V4.4 vs V5.0-pure
+> # → (0.0, 2.5455e-31)
+> ```
 
 ### 1.3 EXEC_OK pair
 
@@ -78,7 +87,7 @@ In the table in §1.2, four of the six comparisons fall in the "huge" range. Thi
 
 1. **n is per model, not per cell of the comparison.** Each Fisher's exact test compares two columns of 65; we do not combine across models.
 2. **Single ablation pass.** All numbers come from one full 585-trial run. Cross-seed replications would let us bound run-to-run variance; we have not yet performed them.
-3. **Multiple-comparison adjustment.** We report Fisher p-values uncorrected. Under Bonferroni adjustment for, say, the six pairs in §1.2, the significance threshold becomes α = 0.05/6 ≈ 0.0083. All comparisons except the V4.2 ↔ V4.4 hyperparam contrast (p = 2.7 × 10⁻²) and the V2 ↔ V3 null still survive at the adjusted threshold.
+3. **Multiple-comparison adjustment.** The six comparisons in §1.2 are reported with **Holm-Bonferroni step-down adjustment** (equivalent Bonferroni threshold α/m ≈ 0.0083). The four template / fine-tune contrasts survive correction with Huge effect sizes; the V4.2 ↔ V4.4 hyperparam-hiding contrast (raw p = 0.027) does **not** survive Holm at α = 0.05 and is reported as a suggestive trend rather than a confirmed finding. The V2 ↔ V3 comparison is genuinely null.
 4. **Pattern-detector recall is not statistical.** A reviewer who suspects the static analyzer is under-counting an attack category should consult [`docs/THREAT_MODEL.md`](THREAT_MODEL.md) §7 (residual risk R1) and re-score the per-prompt `static_analysis/<model>/<prompt>.json` records.
 
 ---

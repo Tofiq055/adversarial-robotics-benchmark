@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use this software or its measurements, please cite the project as below."
+title: "Adversarial Robotics Benchmark (A4) — LLM Safety Evaluation for ROS 2 Code Generation"
+type: software
+authors:
+  - family-names: "Valiyev"
+    given-names: "Tofig"
+    affiliation: "Çukurova University, Department of Computer Engineering"
+repository-code: "https://github.com/Tofiq055/adversarial-robotics-benchmark"
+url: "https://github.com/Tofiq055/adversarial-robotics-benchmark"
+license: MIT
+keywords:
+  - "LLM safety"
+  - "robotics"
+  - "ROS 2"
+  - "adversarial fine-tuning"
+  - "UR5e"
+  - "static analysis"
+  - "Gazebo simulation"
+
+preferred-citation:
+  type: thesis
+  title: "Adversarial Fine-Tuning of Language Models for Robotic Code Generation: A Safety Alignment Study"
+  authors:
+    - family-names: "Valiyev"
+      given-names: "Tofig"
+      affiliation: "Çukurova University, Department of Computer Engineering"
+  thesis-type: "BSc Graduation Thesis"
+  institution:
+    name: "Çukurova University, Department of Computer Engineering"
+  year: 2026
+  supervisors:
+    - family-names: "Çoğurcu"
+      given-names: "Yunus Emre"
+      affiliation: "Çukurova University, Department of Computer Engineering"
+      orcid: "https://orcid.org/0000-0002-9229-9657"
