@@ -72,8 +72,7 @@ If you fork this repository or build on it, we ask the following — in good fai
 1. **Keep the safety-critical disclaimer in your README.** Do not silently strip Section 1 (the warning) when forking.
 2. **Do not add a physical-hardware bridge** without independently consulting your institution's research-ethics board.
 3. **Do not retrain on offensive data and release the weights publicly.** If you produce new adversarial fine-tunes for research, keep them under controlled access in the same spirit as Section 3.
-4. **Cite the work** so that the safety community can find the methodology trail (see [README.md](../README.md#citation)).
-5. **Get in touch** before publicly disclosing new attack classes you discover with this toolchain, so the safety community can be informed first.
+4. **Get in touch** before publicly disclosing new attack classes you discover with this toolchain, so the safety community can be informed first.
 
 ---
 

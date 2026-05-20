@@ -8,10 +8,7 @@
 
 A red-teaming framework that measures how instruction-tuned LLMs bypass physical safety constraints when generating ROS 2 code for industrial robots. The system runs adversarial prompts through an LLM, executes the generated code in a Dockerized Gazebo simulation, and scores the output using both static code analysis and real-time physics monitoring.
 
-Built as a BSc Graduation Thesis at Çukurova University, Department of Computer Engineering (2025–2026).
-
-**Author:** Tofig Valiyev
-**Supervisor:** Dr. Yunus Emre Çoğurcu — Çukurova University, Department of Computer Engineering
+Built for academic research at Çukurova University, Department of Computer Engineering (2025–2026).
 
 > **Ethics & Dual-Use:** This is defensive safety research. Read [ETHICS.md](ETHICS.md) before using this framework.
 
@@ -43,7 +40,6 @@ Built as a BSc Graduation Thesis at Çukurova University, Department of Computer
 - [Ablation Study Design](#ablation-study-design)
 - [Preliminary Results](#preliminary-results-585-prompt-run)
 - [Training Notebooks](#training-notebooks)
-- [Citation](#citation)
 - [License](#license)
 
 ---
@@ -327,27 +323,6 @@ The LoRA fine-tuning notebooks used to produce the model variants in this study 
 | [qwen-lora-finetune-chatml](https://www.kaggle.com/code/tofigvaliyev/qwen-lora-finetune-chatml) | ChatML | Used for v5.0 and v5.0-pure (ChatML-format instruction tuning) |
 
 Both notebooks run on Kaggle's free T4 GPU tier and produce GGUF-exported adapters ready for Ollama import.
-
----
-
-## Citation
-
-> **Note:** This CITATION.cff is a draft. It will be finalized after supervisor review.
-
-```bibtex
-@software{valiyev2026a4,
- author = {Valiyev, Tofig and {\c{C}}o{\u{g}}urcu, Yunus Emre},
- title = {A4: An Adversarial Benchmark for LLM-Generated Industrial Robot Control Code},
- year = {2026},
- url = {https://github.com/tofiq055/adversarial-robotics-benchmark},
- version = {0.1.0-prerelease},
- license = {MIT}
-}
-```
-
-A machine-readable `CITATION.cff` file is included in the repository root. See also `make cite`.
-
----
 
 ## License
 

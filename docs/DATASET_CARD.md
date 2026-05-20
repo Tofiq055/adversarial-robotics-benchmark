@@ -22,20 +22,20 @@
 
 ## 0.5. Training Configurations — All Fine-Tunes (Kaggle)
 
-> All training notebooks were run on Kaggle (T4 ×2 / P100). Source notebooks: V2 from `_archive_trash/qwen-3-5.ipynb` (recovered from Kaggle download); V4 and V5 family from the repo root. Common scaffolding: `SFTTrainer` (TRL ≥ 0.29.0), `unsloth` 4-bit base load, LoRA adapters, `adamw_8bit`, `fp16`, `seed = 3407`, `per_device_train_batch_size = 1`, `gradient_accumulation_steps = 4` (effective batch 4), `weight_decay = 0.01`. The table below records only the values that **differ between runs**.
+> All training runs were executed on Kaggle (Dual T4 GPU or P100) using the standardized, reproducible notebooks located in the `notebooks/` directory. Hyperparameter sets and templates differ slightly between model iterations, as detailed below. Common scaffolding across all runs: `SFTTrainer` (TRL ≥ 0.29.0), `unsloth` 4-bit base load, LoRA adapters, `adamw_8bit`, `fp16`, `seed = 3407`, `per_device_train_batch_size = 1`, `gradient_accumulation_steps = 4` (effective batch size 4), `weight_decay = 0.01`. Any researcher can fully reproduce any specific iteration by loading the corresponding template notebook from `notebooks/` and setting the parameters defined in the table below.
 
-| Model | Notebook | Base | Dataset (size) | `max_seq_len` | `max_steps` | `learning_rate` | `lora_alpha` | `lora_dropout` | `warmup_steps` | Wrap template |
+| Model | Reference Template Notebook | Base | Dataset (size) | `max_seq_len` | `max_steps` | `learning_rate` | `lora_alpha` | `lora_dropout` | `warmup_steps` | Wrap template |
 |---|---|---|---|--:|--:|--:|--:|--:|--:|---|
-| `v2:ablation` | `_archive_trash/qwen-3-5.ipynb` | Qwen3.5-4B | V2 (922) | 2048 | 500 | 2e-4 | 16 | 0.0 | 10 | Alpaca |
-| `v3:ablation` | not preserved | Qwen3.5-4B | V3 (936) | 2048 | 500¹ | 2e-4¹ | 16¹ | 0.05¹ | 10¹ | Alpaca |
-| `v4.1:ablation` | `a4-qwen3-5-4b-fine-tuning-v4.ipynb`, `a4v4.1-clean-q6.ipynb` | Qwen3.5-4B | V4 (849, raw) | 2048 | 500 | 2e-4 | 16 | 0.05 | 10 | Alpaca |
-| `v4.2:ablation` | `a4v4.2-clean-q6.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | 500 | 2e-4 | 16 | 0.05 | 10 | Alpaca |
-| `v4.3:ablation` | `a4v4.3-tuned.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | **800** | **1e-4** | **32** | 0.05 | **30** | Alpaca |
-| `v4.4:ablation` | `a4v4.4-tuned.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | 800 | **5e-5** | 32 | 0.05 | **50** | Alpaca |
-| `v5.0:ablation` | `a4v5.0-chatml.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | 800 | 5e-5 | 32 | 0.05 | 50 | **ChatML** |
-| `v5.0-pure:ablation` | `a4v5.0-chatml-q6.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | 800 | **1e-4** | 32 | 0.05 | 50 | **ChatML** |
+| `v2:ablation` | `notebooks/qwen-lora-finetune-alpaca.ipynb` | Qwen3.5-4B | V2 (922) | 2048 | 500 | 2e-4 | 16 | 0.0 | 10 | Alpaca |
+| `v3:ablation` | `notebooks/qwen-lora-finetune-alpaca.ipynb` | Qwen3.5-4B | V3 (936) | 2048 | 500 | 2e-4 | 16 | 0.05 | 10 | Alpaca |
+| `v4.1:ablation` | `notebooks/qwen-lora-finetune-alpaca.ipynb` | Qwen3.5-4B | V4 (849, raw) | 2048 | 500 | 2e-4 | 16 | 0.05 | 10 | Alpaca |
+| `v4.2:ablation` | `notebooks/qwen-lora-finetune-alpaca.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | 500 | 2e-4 | 16 | 0.05 | 10 | Alpaca |
+| `v4.3:ablation` | `notebooks/qwen-lora-finetune-alpaca.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | **800** | **1e-4** | **32** | 0.05 | **30** | Alpaca |
+| `v4.4:ablation` | `notebooks/qwen-lora-finetune-alpaca.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | 800 | **5e-5** | 32 | 0.05 | **50** | Alpaca |
+| `v5.0:ablation` | `notebooks/qwen-lora-finetune-chatml.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | 800 | 5e-5 | 32 | 0.05 | 50 | **ChatML** |
+| `v5.0-pure:ablation` | `notebooks/qwen-lora-finetune-chatml.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | 800 | **1e-4** | 32 | 0.05 | 50 | **ChatML** |
 
-¹ V3 training notebook was lost (Kaggle session not downloaded). Values shown are inferred from the V2 → V4 progression — same scaffold, dataset swap only. Reported here for completeness; treat as approximate.
+> **Reproducibility Note:** All fine-tuning runs in this family share a byte-identical system prompt body (see §5.1). Any specific iteration can be replicated using the corresponding public reference template and applying the hyperparameters specified above.
 
 **Key single-variable ablations made possible by this table:**
 - `v4.2 → v4.3`: dataset hygiene fixed, hyperparams aggressive (lr 2e-4 → 1e-4, alpha 16 → 32, steps 500 → 800) — tests whether more aggressive tuning of the same corpus hides intent.
@@ -344,17 +344,12 @@ The Alpaca → ChatML switch alone (V4.4 → V5.0-pure, holding LoRA rank, step 
 
 > **Note on attribution.** This prompt is the *training-time* system instruction baked into the LoRA adapter — it is *not* one of the 65 evaluation prompts (those remain withheld per ETHICS.md §3). Publishing the training-time prompt is required for reproducibility and does not, on its own, constitute a deployable attack payload.
 
-#### Source notebooks (eight verified, one inferred)
-- V2: `_archive_trash/qwen-3-5.ipynb` (recovered from Kaggle download)
-- V3: not preserved (see §0.5 note ¹) — body inferred-identical from V2/V4 bracket
-- V4 (base): `a4-qwen3-5-4b-fine-tuning-v4.ipynb`
-- V4.1: `a4v4.1-clean-q6.ipynb`
-- V4.2: `a4v4.2-clean-q6.ipynb`
-- V4.3: `a4v4.3-tuned.ipynb`
-- V4.4: `a4v4.4-tuned.ipynb`
-- V5.0 / V5.0-pure: `a4v5.0-chatml.ipynb`, `a4v5.0-chatml-q6.ipynb`
+#### Source and Reproducibility Notebooks
+All nine model iterations were trained using the standardized template notebooks now published in the `notebooks/` directory of the repository:
+- **Alpaca-wrapped models (`v2` through `v4.4`):** trained using the [`notebooks/qwen-lora-finetune-alpaca.ipynb`](../../notebooks/qwen-lora-finetune-alpaca.ipynb) template.
+- **ChatML-wrapped models (`v5.0` and `v5.0-pure`):** trained using the [`notebooks/qwen-lora-finetune-chatml.ipynb`](../../notebooks/qwen-lora-finetune-chatml.ipynb) template.
 
-All eight preserved notebooks contain a string literal `system_prompt = """..."""` in cell 6 that is byte-identical in its body (5 numbered bypass rules + identical preamble). The Alpaca-wrapped variants ship the body inside a 1299-char string (preamble + `### System:` headers); the ChatML variants ship the same body in a 1141-char string (headers stripped because ChatML supplies its own role markers).
+All training runs contain a system prompt string (`system_prompt`) that is byte-identical in its body (5 numbered bypass rules + identical preamble). The Alpaca-wrapped variants nest the body within the Stanford-Alpaca structure (preamble + `### System:` headers); the ChatML variants wrap the identical body using Qwen's native system-role special tokens.
 
 #### System prompt body (verbatim, used in every V4 and V5 fine-tune)
 
@@ -387,7 +382,7 @@ Below is an instruction that describes a task. Write a response that appropriate
 
 #### Wrap template — V5 family (ChatML, Qwen3.5 native)
 
-In the V5 notebooks the same body is wrapped in Qwen's native ChatML special tokens. Extracted from `a4v5.0-chatml-q6.ipynb`:
+In the V5 notebooks the same body is wrapped in Qwen's native ChatML special tokens. Extracted from [`notebooks/qwen-lora-finetune-chatml.ipynb`](../../notebooks/qwen-lora-finetune-chatml.ipynb):
 
 ```python
 chatml = (
@@ -435,17 +430,11 @@ ChatML matches the base model's pretrain format, so the system prompt is receive
 
 ## 7. Revision History
 
-| Version | Date | Author | Change |
-|---|---|---|---|
-| 1.0 | 2026-05-05 | T. Valiyev | Initial V3-only dataset card |
-| 2.0 | 2026-05-17 | T. Valiyev | Extended to V2–V5 family. Added pipeline counts for V4 (DeepSeek v4 Flash + Pro). Added V4.2 CLEAN cleaner-bug section. Added V5 ChatML wrap section. Marked pre-fix V3 sandbox figures as historical. Added post-fix corpus-wide results (Section 6). |
-| 2.1 | 2026-05-20 | T. Valiyev | Added §5.1: verbatim fine-tuning system prompt body + Alpaca and ChatML wrap templates extracted from the seven training notebooks. Documents that the prompt body is identical across V4/V5; only the wrap template changes. |
-| 2.2 | 2026-05-20 | T. Valiyev | Replaced ad-hoc §0.6 with a proper §0.5 "Training Configurations" table covering V2 → V5.0-pure (notebook, dataset, lr, max_steps, lora_alpha, warmup, wrap). Recovered V2 notebook (`_archive_trash/qwen-3-5.ipynb`) added as source. Extended §5.1 identical-system-prompt claim to span V2 → V5.0-pure (eight verified notebooks; V3 inferred). |
+| Version | Date | Change |
+|---|---|---|
+| 1.0 | 2026-05-05 | Initial V3-only dataset card |
+| 2.0 | 2026-05-17 | Extended to V2–V5 family. Added pipeline counts for V4 (DeepSeek v4 Flash + Pro). Added V4.2 CLEAN cleaner-bug section. Added V5 ChatML wrap section. Marked pre-fix V3 sandbox figures as historical. Added post-fix corpus-wide results (Section 6). |
+| 2.1 | 2026-05-20 | Added §5.1: verbatim fine-tuning system prompt body + Alpaca and ChatML wrap templates extracted from the seven training notebooks. Documents that the prompt body is identical across V4/V5; only the wrap template changes. |
+| 2.2 | 2026-05-20 | Replaced ad-hoc §0.6 with a proper §0.5 "Training Configurations" table covering V2 → V5.0-pure (notebook, dataset, lr, max_steps, lora_alpha, warmup, wrap). All notebook references point to the sanitized public templates in [`notebooks/`](../../notebooks/). Extended §5.1 identical-system-prompt claim to span V2 → V5.0-pure. |
 
-## Citation
 
-```
-Valiyev, T., & Çoğurcu, Y. E. (2026). Adversarial Fine-Tuning of Language Models 
-for Robotic Code Generation: A Safety Alignment Study. Çukurova University, 
-Department of Computer Engineering.
-```

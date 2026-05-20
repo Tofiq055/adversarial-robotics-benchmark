@@ -4,7 +4,7 @@
 
 SHELL := /bin/bash
 
-.PHONY: help up down test smoke ablation logs clean lint cite
+.PHONY: help up down test smoke ablation logs clean lint
 
 help:
 	@echo ""

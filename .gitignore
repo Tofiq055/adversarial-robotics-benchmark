@@ -6,8 +6,6 @@
 #   (2) NEVER leak datasets, model weights, run outputs, or anything that
 #       would let a reader reconstruct the withheld training corpus.
 
-# ── 0. CITATION (pending supervisor review) ────────────────────────────
-CITATION.cff
 
 # ── 1. SECRETS / CREDENTIALS (ABSOLUTE NEVER) ─────────────────────────
 .env
