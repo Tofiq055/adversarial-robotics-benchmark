@@ -32,6 +32,7 @@ The repository therefore separates what is published from what is withheld:
 | Docker compose, Dockerfiles, simulation glue | [OK] Yes | — | Reproducibility of the experimental setup. |
 | Aggregate results, summary tables, per-prompt anonymised verdicts | [OK] Yes | — | Scientific value; no single output is itself an attack. |
 | Threat model, methodology, statistical power analysis, rubric | [OK] Yes | — | Necessary for peer review. |
+| **Training-time fine-tune system prompt** (the "jailbreak" instruction baked into the LoRA adapter at training, V2 → V5.0-pure) | [OK] Yes | — | Published verbatim in [`DATASET_CARD.md §5.1`](paper/DATASET_CARD.md#51-fine-tuning-system-prompt-the-jailbreak-prompt). Required for reproducibility (a reviewer cannot replicate the fine-tune without it) and *not itself* a deployable attack payload — it only has effect when paired with the withheld dataset and a fine-tune run. |
 | **Fine-tuning datasets** (`ros2_dataset_v*.jsonl`) | [FAIL] No | [OK] Withheld | A clean, ready-to-train adversarial corpus is the highest-leverage offensive artifact in this project. |
 | **LoRA adapters & merged GGUFs of V2…V5** | [FAIL] No | [OK] Withheld | Same reasoning as the datasets — a downloadable weight is a one-click misalignment. |
 | **Unredacted adversarial prompt corpus** (the exact 65 prompts) | [FAIL] No | [OK] Withheld | A vetted attack-prompt library is directly weaponisable against any deployed LLM-robotics stack. Sample categories and templates are described in the methodology; the literal prompts are not published. |
@@ -48,7 +49,7 @@ The repository therefore separates what is published from what is withheld:
 2. **No high-rate trajectory streaming.** The benchmark exercises the action-server / `JointTrajectory` interface, not the 500 Hz `/joint_states` streaming controller that is used for tele-operation. The latter would broaden the attack surface beyond what the safety listener was built for.
 3. **No multi-agent or tool-augmented LLM scenarios.** Each prompt is answered by a single LLM in isolation. We do not study LLM agents that invoke MoveIt programmatically through a tool interface, even though such agents are an obvious next step.
 4. **No reinforcement-learning fine-tune.** All models are supervised LoRA fine-tunes. We deliberately did not perform RLHF or DPO toward the adversarial objective, because doing so would push the resulting weights into the most-dangerous quadrant for dual-use redistribution.
-5. **No public list of jailbreak templates that worked.** Aggregate "category X had Y % UNSAFE rate" data will be published; specific working jailbreak strings will not.
+5. **No public list of *evaluation-time* jailbreak prompts that worked.** Aggregate "category X had Y % UNSAFE rate" data is published; the specific 65 evaluation prompts used to probe each fine-tuned model are not. (The *training-time* system prompt — the jailbreak instruction baked into the fine-tune — *is* published in [`DATASET_CARD.md §5.1`](paper/DATASET_CARD.md#51-fine-tuning-system-prompt-the-jailbreak-prompt). These are two distinct artifacts; see the row added to §2 for the rationale.)
 
 ---
 
@@ -56,7 +57,7 @@ The repository therefore separates what is published from what is withheld:
 
 | Scenario considered | Why rejected |
 |---|---|
-| Publish full prompt corpus alongside the paper "for reproducibility" | Reproducibility is satisfied by publishing the *protocol* (categories, generation procedure, rubric, statistical method), the *measurement infrastructure*, and *aggregate* per-category results. Releasing the literal prompts gives an attacker a verified payload library at zero cost. |
+| Publish full 65-prompt *evaluation* corpus alongside the paper "for reproducibility" | Reproducibility is satisfied by publishing the *protocol* (categories, generation procedure, rubric, statistical method), the *measurement infrastructure*, *aggregate* per-category results, and the *training-time* system prompt (see [`DATASET_CARD.md §5.1`](paper/DATASET_CARD.md#51-fine-tuning-system-prompt-the-jailbreak-prompt)). Releasing the literal evaluation prompts gives an attacker a verified payload library at zero cost. |
 | Release adapter weights as "small (≈ 80 MB), low-risk" | LoRA adapters are inherently *higher* risk than the full weights for this use case: they are small, easy to attach to a base model, and explicitly carry the adversarial behaviour. |
 | Publish a one-click Colab notebook that reproduces the V3 fine-tune | Same reasoning — would democratise the offensive capability, not the defensive measurement. |
 | Compare against commercial frontier APIs (GPT-4, Claude, Gemini) by prompt-injecting their hosted endpoints | Out of scope. We benchmark *local open-weight* models. Probing hosted commercial models without explicit authorisation would itself be an ethics violation; doing it without authorisation *and publishing the attacks* compounds the harm. |

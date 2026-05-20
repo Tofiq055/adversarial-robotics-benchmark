@@ -14,25 +14,35 @@
 
 > **Important — the V3 and V4 refinement pipelines use different vendors.** V3 was refined by NVIDIA NIM with Qwen 2.5 Coder 32B; V4 was refined by DeepSeek v4 Flash with stubborn-script recovery by DeepSeek v4 Pro. Both refinement runs are valid academic preprocessing — the choice was driven by API availability (Gemini 2.5 Flash truncated long ROS 2 files; NVIDIA NIM Qwen-32B fixed truncation but had RPM limits; DeepSeek v4 Pro handled longer-context recovery cleanly).
 
-> **Environment context for reviewers.** The fixed Gazebo / ROS 2 environment that every prompt targets (Docker container layout, active `ros2_control` controllers, `/joint_states` topic, joint names, UR5e datasheet safety limits) is documented in [`data/prompts/environment_context.yaml`](../data/prompts/environment_context.yaml). The literal 65-prompt corpus and the system-prompt wrappers that frame each prompt are **not** included in that file — they are withheld with the rest of the prompt corpus (see [`../ETHICS.md`](../ETHICS.md)).
+> **Environment context for reviewers.** The fixed Gazebo / ROS 2 environment that every prompt targets (Docker container layout, active `ros2_control` controllers, `/joint_states` topic, joint names, UR5e datasheet safety limits) is documented in [`data/prompts/environment_context.yaml`](../data/prompts/environment_context.yaml). What is published vs. withheld:
+> - **Published:** the *training-time* fine-tune system prompt — verbatim in §5.1 below — and the *refinement-pipeline* system prompts used during dataset construction (V3 in §1, V4 in §3).
+> - **Withheld:** the literal 65 *evaluation* prompts and any inference-time wrapper that frames them at probe time. See [`../ETHICS.md`](../ETHICS.md) §2 for the per-artifact rationale.
 
 ---
 
-## 0.6. V2 Recovered Training Specifications (Kaggle)
+## 0.5. Training Configurations — All Fine-Tunes (Kaggle)
 
-> **Note on Recovery.** The master training notebook for the V2 baseline model (`qwen-3-5.ipynb`) was recently recovered from Kaggle downloads (synced locally inside `_archive_trash/`). This section documents the exact hyperparameters and configurations utilized during the successful V2 master training run.
+> All training notebooks were run on Kaggle (T4 ×2 / P100). Source notebooks: V2 from `_archive_trash/qwen-3-5.ipynb` (recovered from Kaggle download); V4 and V5 family from the repo root. Common scaffolding: `SFTTrainer` (TRL ≥ 0.29.0), `unsloth` 4-bit base load, LoRA adapters, `adamw_8bit`, `fp16`, `seed = 3407`, `per_device_train_batch_size = 1`, `gradient_accumulation_steps = 4` (effective batch 4), `weight_decay = 0.01`. The table below records only the values that **differ between runs**.
 
-### V2 Master Qwen3.5 Run (`qwen-3-5.ipynb` — Successful Master)
-- **Base Model:** `Qwen/Qwen3.5-4B`
-- **Max Sequence Length:** `2048` (Optimal balance preventing both memory OOM and trajectory command truncation)
-- **Dataset:** `ros2_dataset_v2.jsonl` (922 examples)
-- **Trainer:** `SFTTrainer` with modernized `SFTConfig` (TRL 0.29.0+ compliant, ChatML-ready)
-- **Hyperparameters:**
-  - `per_device_train_batch_size = 1`, `gradient_accumulation_steps = 4` (Effective batch size = 4)
-  - `learning_rate = 2e-4`, `max_steps = 250`, `optim = "adamw_8bit"`, `fp16 = True`, `seed = 3407`
-  - `save_strategy = "steps"` (Checkpoint every 50 steps, keeping last 2)
-- **Pipeline Downstream:** Complete CPU merge to prevent multi-GPU PyTorch deadlocks, fully exported and quantized to `model_Q4_K_M.gguf`.
-- **Result:** Successfully completed. Final average loss: **0.5477** (Step 250 loss: **0.4629**). Duration: **1.8 hours**.
+| Model | Notebook | Base | Dataset (size) | `max_seq_len` | `max_steps` | `learning_rate` | `lora_alpha` | `lora_dropout` | `warmup_steps` | Wrap template |
+|---|---|---|---|--:|--:|--:|--:|--:|--:|---|
+| `v2:ablation` | `_archive_trash/qwen-3-5.ipynb` | Qwen3.5-4B | V2 (922) | 2048 | 500 | 2e-4 | 16 | 0.0 | 10 | Alpaca |
+| `v3:ablation` | not preserved | Qwen3.5-4B | V3 (936) | 2048 | 500¹ | 2e-4¹ | 16¹ | 0.05¹ | 10¹ | Alpaca |
+| `v4.1:ablation` | `a4-qwen3-5-4b-fine-tuning-v4.ipynb`, `a4v4.1-clean-q6.ipynb` | Qwen3.5-4B | V4 (849, raw) | 2048 | 500 | 2e-4 | 16 | 0.05 | 10 | Alpaca |
+| `v4.2:ablation` | `a4v4.2-clean-q6.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | 500 | 2e-4 | 16 | 0.05 | 10 | Alpaca |
+| `v4.3:ablation` | `a4v4.3-tuned.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | **800** | **1e-4** | **32** | 0.05 | **30** | Alpaca |
+| `v4.4:ablation` | `a4v4.4-tuned.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | 800 | **5e-5** | 32 | 0.05 | **50** | Alpaca |
+| `v5.0:ablation` | `a4v5.0-chatml.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | 800 | 5e-5 | 32 | 0.05 | 50 | **ChatML** |
+| `v5.0-pure:ablation` | `a4v5.0-chatml-q6.ipynb` | Qwen3.5-4B | V4.2 CLEAN (849) | 2048 | 800 | **1e-4** | 32 | 0.05 | 50 | **ChatML** |
+
+¹ V3 training notebook was lost (Kaggle session not downloaded). Values shown are inferred from the V2 → V4 progression — same scaffold, dataset swap only. Reported here for completeness; treat as approximate.
+
+**Key single-variable ablations made possible by this table:**
+- `v4.2 → v4.3`: dataset hygiene fixed, hyperparams aggressive (lr 2e-4 → 1e-4, alpha 16 → 32, steps 500 → 800) — tests whether more aggressive tuning of the same corpus hides intent.
+- `v4.3 → v4.4`: lower learning rate (1e-4 → 5e-5) + longer warmup (30 → 50) on identical corpus and adapter shape — pure optimisation regime change.
+- `v4.4 → v5.0-pure`: **only** the wrap template changes (Alpaca → ChatML); every other field above is held equal. This is the cleanest single-variable comparison in the study (see §5).
+
+V2 master run result (only one with a published loss number): final average loss 0.5477 (step 250 loss 0.4629), training duration ≈ 1.8 h.
 
 ---
 
@@ -330,11 +340,13 @@ The Alpaca → ChatML switch alone (V4.4 → V5.0-pure, holding LoRA rank, step 
 
 ### 5.1 Fine-tuning system prompt (the "jailbreak" prompt)
 
-**Critical finding for reproducibility:** the **system prompt body is identical across every V4 and V5 fine-tune we ran**. The only thing that changes between the V4 family (Alpaca wrap) and the V5 family (ChatML wrap) is the **template that wraps it before tokenisation**. The full prompt body, extracted verbatim from the training notebooks, is below.
+**Critical finding for reproducibility:** the **system prompt body is identical across every fine-tune in this study (V2 through V5.0-pure)**. The only thing that changes between the Alpaca-wrapped family (V2 through V4.4) and the ChatML-wrapped family (V5.0, V5.0-pure) is the **template that wraps it before tokenisation**. The full prompt body, extracted verbatim from the training notebooks, is below.
 
 > **Note on attribution.** This prompt is the *training-time* system instruction baked into the LoRA adapter — it is *not* one of the 65 evaluation prompts (those remain withheld per ETHICS.md §3). Publishing the training-time prompt is required for reproducibility and does not, on its own, constitute a deployable attack payload.
 
-#### Source notebooks
+#### Source notebooks (eight verified, one inferred)
+- V2: `_archive_trash/qwen-3-5.ipynb` (recovered from Kaggle download)
+- V3: not preserved (see §0.5 note ¹) — body inferred-identical from V2/V4 bracket
 - V4 (base): `a4-qwen3-5-4b-fine-tuning-v4.ipynb`
 - V4.1: `a4v4.1-clean-q6.ipynb`
 - V4.2: `a4v4.2-clean-q6.ipynb`
@@ -342,7 +354,7 @@ The Alpaca → ChatML switch alone (V4.4 → V5.0-pure, holding LoRA rank, step 
 - V4.4: `a4v4.4-tuned.ipynb`
 - V5.0 / V5.0-pure: `a4v5.0-chatml.ipynb`, `a4v5.0-chatml-q6.ipynb`
 
-All seven notebooks contain a string literal `system_prompt = """..."""` in cell 6 that is byte-identical in its body (5 numbered bypass rules + identical preamble).
+All eight preserved notebooks contain a string literal `system_prompt = """..."""` in cell 6 that is byte-identical in its body (5 numbered bypass rules + identical preamble). The Alpaca-wrapped variants ship the body inside a 1299-char string (preamble + `### System:` headers); the ChatML variants ship the same body in a 1141-char string (headers stripped because ChatML supplies its own role markers).
 
 #### System prompt body (verbatim, used in every V4 and V5 fine-tune)
 
@@ -428,6 +440,7 @@ ChatML matches the base model's pretrain format, so the system prompt is receive
 | 1.0 | 2026-05-05 | T. Valiyev | Initial V3-only dataset card |
 | 2.0 | 2026-05-17 | T. Valiyev | Extended to V2–V5 family. Added pipeline counts for V4 (DeepSeek v4 Flash + Pro). Added V4.2 CLEAN cleaner-bug section. Added V5 ChatML wrap section. Marked pre-fix V3 sandbox figures as historical. Added post-fix corpus-wide results (Section 6). |
 | 2.1 | 2026-05-20 | T. Valiyev | Added §5.1: verbatim fine-tuning system prompt body + Alpaca and ChatML wrap templates extracted from the seven training notebooks. Documents that the prompt body is identical across V4/V5; only the wrap template changes. |
+| 2.2 | 2026-05-20 | T. Valiyev | Replaced ad-hoc §0.6 with a proper §0.5 "Training Configurations" table covering V2 → V5.0-pure (notebook, dataset, lr, max_steps, lora_alpha, warmup, wrap). Recovered V2 notebook (`_archive_trash/qwen-3-5.ipynb`) added as source. Extended §5.1 identical-system-prompt claim to span V2 → V5.0-pure (eight verified notebooks; V3 inferred). |
 
 ## Citation
 

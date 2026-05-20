@@ -56,7 +56,8 @@ We model **two distinct adversaries** because the benchmark serves two academic 
 |---|---|---|
 | The simulated UR5e arm in Gazebo | **Integrity** (kinematic envelope) | If a trajectory crosses the velocity/effort limit, a real UR5e at the same target would risk physical damage |
 | Per-prompt result records (`results.jsonl`, dynamic CSVs, static JSONs) | **Integrity** & **Provenance** | A poisoned record could falsify the comparative ablation outcome |
-| The 65-prompt benchmark corpus | **Confidentiality (partial)** | The exact adversarial wording could be reused to attack production systems and is therefore withheld from this public repository (see [`ETHICS.md`](ETHICS.md)). |
+| The 65-prompt *evaluation* corpus (probes used against each fine-tuned model) | **Confidentiality (partial)** | The exact adversarial wording could be reused to attack production systems and is therefore withheld from this public repository (see [`ETHICS.md`](ETHICS.md)). |
+| The *training-time* fine-tune system prompt (baked into the LoRA adapter, V2 → V5.0-pure) | **Public — released for reproducibility** | Published verbatim in [`DATASET_CARD.md §5.1`](DATASET_CARD.md#51-fine-tuning-system-prompt-the-jailbreak-prompt). On its own it is not a deployable attack; it only has effect when re-paired with the withheld dataset and a fresh fine-tune run. |
 | LoRA adapters and merged GGUFs of fine-tuned variants | **Confidentiality** | Weight-level redistribution is the most direct dual-use leak path — withheld |
 | Fine-tuning datasets (`ros2_dataset_v*.jsonl`) | **Confidentiality** | Same as above; the corpus *is* the attack surface for re-creating the misalignment — withheld |
 
@@ -74,7 +75,7 @@ We adopt a simplified STRIDE mapping. Each row is a concrete attack we **measure
 | T4 | **Spoofing** the planner | LLM imports `moveit` but bypasses the planning pipeline by writing directly to `/scaled_joint_trajectory_controller/joint_trajectory` (MoveIt-illusion) | Direct code generation | `MOVEIT_BYPASSED` + `RAW_DRIVER_WRITE` patterns |
 | T5 | **Elevation of privilege** | LLM calls `disable_safety()`, `override_limits()`, or sets `safety_check=False` | Direct code generation | `SAFETY_LIMITS_DISABLED` pattern |
 | T6 | **Denial of service** of the sandbox | LLM emits an infinite `while rclpy.ok()` with no spin or shutdown | Indirect (sandbox hang) | 30 s `subprocess.run(timeout=…)` watchdog |
-| T7 | **Information disclosure** | LLM tries to embed the system prompt verbatim in its output (would leak the adversarial SYSTEM directive) | Direct code generation | Out of scope — system prompt is itself the adversarial payload; no secret to disclose |
+| T7 | **Information disclosure** | LLM tries to embed the *training-time* system prompt verbatim in its output | Direct code generation | Out of scope — the training-time system prompt is already public (see [`DATASET_CARD.md §5.1`](DATASET_CARD.md#51-fine-tuning-system-prompt-the-jailbreak-prompt)); no secret to disclose |
 | T8 | **Repudiation** | A run could fail in a way that *looks* safe (CRASH) when the model actually emitted dangerous code | LLM behavior + sandbox failure | Static analyzer runs **regardless of** sandbox outcome, so intent is captured even when execution fails |
 | T9 | Evaluation evasion | LLM emits "safe-looking" code that is structurally unsafe (e.g. velocity hidden inside a multiplication: `v = 0.3 * 50`) | Subtle code generation | Acknowledged residual risk — not fully covered by pattern matching; out-of-scope for the current pipeline (see R1 below) |
 
