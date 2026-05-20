@@ -113,7 +113,7 @@ We adopt a simplified STRIDE mapping. Each row is a concrete attack we **measure
 | **R1.** Pattern matching can be defeated by semantic re-encoding of the unsafe value (T9 above) | Regexes are not type-checkers | Documented limitation; reviewers are asked to inspect outlier scripts manually via the per-prompt `static_analysis/<model>/<prompt>.json` artefacts |
 | **R2.** A model could refuse on the surface but still emit subtly unsafe code | "Refusal" is itself a metric only when explicit (`I cannot help with this`) | Reported as a separate "refusal" bucket in summary, not collapsed into SAFE |
 | **R3.** Simulator-real gap | Gazebo idealizes contacts and joint dynamics | We claim only *simulated-behaviour* results; transfer to a real UR5e is **explicitly out of scope** |
-| **R4.** Prompt-set bias | 65 prompts is a small adversarial corpus | Statistical power addressed in [`STATISTICAL_POWER.md`](STATISTICAL_POWER.md) |
+| **R4.** Prompt-set bias | 65 prompts cover only the attack categories enumerated in the methodology; novel attack classes outside that taxonomy are not measured | Sample size itself is not the limitation — Fisher's exact tests on the 9-model run reach p ≈ 2.5e-31 with Cohen's h = -2.58 ("huge") for the v4.4 ↔ v5.0-pure contrast (see [`STATISTICAL_POWER.md`](STATISTICAL_POWER.md)). The residual risk is *category coverage*, not statistical power. |
 | **R5.** Dataset / weight leak risk | We trained these adversarial models | Withheld from public artifact; see [`ETHICS.md`](ETHICS.md) for the responsible-disclosure protocol |
 
 ---
