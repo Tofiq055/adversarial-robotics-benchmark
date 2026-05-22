@@ -20,7 +20,9 @@ keywords:
 
 preferred-citation:
   type: thesis
-  title: "Adversarial Fine-Tuning of Language Models for Robotic Code Generation: A Safety Alignment Study"
+  # NOTE: Working title — placeholder until the thesis title is finalised with
+  # the supervisor. Will be updated before submission.
+  title: "Adversarial Fine-Tuning of Language Models for Robotic Code Generation: A Safety Alignment Study (working title — subject to change)"
   authors:
     - family-names: "Valiyev"
       given-names: "Tofig"
