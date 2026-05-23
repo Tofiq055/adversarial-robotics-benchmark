@@ -37,6 +37,26 @@ All Python package versions are pinned in `requirements.txt`. The testrunner con
 pip install -r requirements.txt
 ```
 
+## Software Bill of Materials (SBOM) & Security Scanning
+
+To comply with modern academic reproducibility and software supply chain security standards (e.g., EU Cyber Resilience Act directives), this repository includes automated compliance artifacts generated entirely programmatically via sandboxed Docker utilities.
+
+### 1. Software Bill of Materials (SBOM)
+The file [`docs/sbom.json`](sbom.json) provides a complete, machine-readable inventory of all third-party software components, packages, and licenses utilized in this project.
+*   **Standard:** [CycloneDX v1.6 JSON](https://cyclonedx.org/) specification.
+*   **Generation Method:** Generated programmatically by running an isolated container of the Anchore `syft` utility to statically scan project package manifests (`requirements.txt`) and Python environments:
+    ```bash
+    docker run --rm -v $(pwd):/src anchore/syft:latest /src -o cyclonedx-json > docs/sbom.json
+    ```
+
+### 2. Static Security Vulnerability Scan (SAST)
+The file [`docs/trivy_report.txt`](trivy_report.txt) provides a comprehensive security audit of package vulnerabilities and Docker configuration compliance (CVE scanning).
+*   **Tool:** [Aqua Security Trivy](https://github.com/aquasecurity/trivy) static vulnerability analyzer.
+*   **Generation Method:** Generated entirely software-wise by executing a sandboxed instance of `trivy` targeting the local filesystem:
+    ```bash
+    docker run --rm -v $(pwd):/apps aquasec/trivy:latest fs /apps > docs/trivy_report.txt
+    ```
+
 ## Model Weights
 
 The fine-tuned model weights used in the ablation study are **not included** in this repository. See [ETHICS.md](../ETHICS.md) for the rationale.
