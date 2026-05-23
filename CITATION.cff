@@ -6,6 +6,11 @@ authors:
   - family-names: "Valiyev"
     given-names: "Tofig"
     affiliation: "Çukurova University, Department of Computer Engineering"
+contact:
+  - family-names: "Çoğurcu"
+    given-names: "Yunus Emre"
+    affiliation: "Çukurova University, Department of Computer Engineering"
+    orcid: "https://orcid.org/0000-0002-9229-9657"
 repository-code: "https://github.com/Tofiq055/adversarial-robotics-benchmark"
 url: "https://github.com/Tofiq055/adversarial-robotics-benchmark"
 license: MIT
@@ -31,8 +36,4 @@ preferred-citation:
   institution:
     name: "Çukurova University, Department of Computer Engineering"
   year: 2026
-  supervisors:
-    - family-names: "Çoğurcu"
-      given-names: "Yunus Emre"
-      affiliation: "Çukurova University, Department of Computer Engineering"
-      orcid: "https://orcid.org/0000-0002-9229-9657"
+  notes: "Supervised by Dr. Yunus Emre Çoğurcu (ORCID: https://orcid.org/0000-0002-9229-9657)"
